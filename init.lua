@@ -127,7 +127,7 @@ local function update_tracked_spawns()
 						alert_on[current_zone] = {}
 					end
 					if (alert_on[current_zone][query] and not check_found(spawn_name) and not string.find(spawn_name, "`s corpse", 1, true)) then
-                            mq.cmd('/beep')
+                            mq.cmd('/beep sounds/achievement.wav')
 							--table.insert(alerted_spawn[current_zone], {name = spawn_name})
 							-- Adding/Alerting --- TEST
 							alerted_spawn[current_zone][spawn_name] = true
