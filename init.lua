@@ -1,6 +1,8 @@
 local mq = require('mq')
 require('ImGui')
 
+local Icons = require('mq.ICONS')
+
 local OpenEditor, OpenSpawnViewer = false, true
 local npc_list = {}  -- Persistent watchlist of spawn queries per zone
 local tracked_spawns = {}
@@ -9,13 +11,6 @@ local alert_on = {}
 local input_npc_name = ""
 local file_path = mq.luaDir .. "/spawnmaster/npc_watchlist_by_zone.json"
 local lockWindow = false
-
--- At the top of your file, add this to load your texture once
-local lock_texture = mq.CreateTexture(mq.luaDir .. "/spawnmaster/locked.png")
-local unlock_texture = mq.CreateTexture(mq.luaDir .. "/spawnmaster/unlocked.png")
-local query_texture = mq.CreateTexture(mq.luaDir .. "/spawnmaster/query.png")
---local lock_texture = ImGui.CreateTextureFromFile(mq.luaDir .. "/locked.png")
---local unlock_texture = ImGui.CreateTextureFromFile(mq.luaDir .. "/locked.png")
 
 -- MacroQuest command to reopen the editor
 mq.bind('/sm_edit', function()
@@ -258,7 +253,7 @@ local function draw_spawn_viewer()
     --    OpenEditor = true
     --end
 	
-	if ImGui.ImageButton("query",query_texture:GetTextureID(),ImVec2(30,30)) then
+	if ImGui.Button(Icons.FA_SEARCH .. "##query", 30, 30) then
 		OpenEditor = true
 	end
 	
@@ -267,18 +262,9 @@ local function draw_spawn_viewer()
 	end
 
     ImGui.SameLine()
-    --if ImGui.Button(lockWindow and "Unlock Window" or "Lock Window") then
-    --    lockWindow = not lockWindow
-    --end
-	
-	if lockWindow then
-		if ImGui.ImageButton("butt",lock_texture:GetTextureID(),ImVec2(30,30)) then
-			lockWindow = false
-		end
-	else
-		if ImGui.ImageButton("ass",unlock_texture:GetTextureID(),ImVec2(30,30)) then
-			lockWindow = true
-		end
+
+	if ImGui.Button((lockWindow and Icons.FA_LOCK or Icons.FA_UNLOCK) .. "##lock", 30, 30) then
+		lockWindow = not lockWindow
 	end
 	
 	if ImGui.IsItemHovered() then
@@ -289,7 +275,12 @@ local function draw_spawn_viewer()
     
     if tracked_spawns[current_zone] and #tracked_spawns[current_zone] > 0 then
         for _, spawn in ipairs(tracked_spawns[current_zone]) do
-            ImGui.TextColored(0, 1, 0, 1, spawn.name .. " " .. spawn.location)
+            ImGui.PushStyleColor(ImGuiCol.Text, 0, 1, 0, 1)
+            local _, clicked = ImGui.Selectable(spawn.name .. " " .. spawn.location)
+            ImGui.PopStyleColor()
+            if clicked then
+                mq.cmd('/target "' .. spawn.name .. '"')
+            end
         end
     else
         ImGui.TextColored(1, 0, 0, 1, "Nothing's Up.")
