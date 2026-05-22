@@ -234,45 +234,41 @@ local function draw_editor()
     ImGui.End()
 end
 
--- 🔹 Draw the Active Spawn Viewer (Only for the current zone)
+-- Draw the Active Spawn Viewer (Only for the current zone)
 local function draw_spawn_viewer()
     if not OpenSpawnViewer then return end
 
     ImGui.SetNextWindowSize(400, 500, ImGuiCond.FirstUseEver)
-    ImGui.SetNextWindowBgAlpha(0.0) -- Fully transparent window
+    ImGui.SetNextWindowBgAlpha(0.0)
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, ImVec2(0, 0))
+    ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, ImVec2(4, 1))
 
-    -- Apply NoMove flag if lockWindow is true
     local window_flags = ImGuiWindowFlags.NoTitleBar + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.AlwaysAutoResize
     if lockWindow then
         window_flags = window_flags + ImGuiWindowFlags.NoMove
     end
 
     OpenSpawnViewer = ImGui.Begin("Active Spawn Viewer", OpenSpawnViewer, window_flags)
+    ImGui.PopStyleVar(2)
 
-    --if ImGui.Button("Open Spawn Query Editor") then
-    --    OpenEditor = true
-    --end
-	
-	if ImGui.Button(Icons.FA_SEARCH .. "##query", 30, 30) then
-		OpenEditor = true
-	end
-	
-	if ImGui.IsItemHovered() then
-		ImGui.SetTooltip("Add NPC to zone")
-	end
+    if ImGui.Button(Icons.FA_SEARCH .. "##query", 28, 28) then
+        OpenEditor = true
+    end
+    if ImGui.IsItemHovered() then
+        ImGui.SetTooltip("Add NPC to zone")
+    end
 
     ImGui.SameLine()
 
-	if ImGui.Button((lockWindow and Icons.FA_LOCK or Icons.FA_UNLOCK) .. "##lock", 30, 30) then
-		lockWindow = not lockWindow
-	end
-	
-	if ImGui.IsItemHovered() then
-		ImGui.SetTooltip(lockWindow and "Unlock Window" or "Lock Window")
-	end
+    if ImGui.Button((lockWindow and Icons.FA_LOCK or Icons.FA_UNLOCK) .. "##lock", 28, 28) then
+        lockWindow = not lockWindow
+    end
+    if ImGui.IsItemHovered() then
+        ImGui.SetTooltip(lockWindow and "Unlock Window" or "Lock Window")
+    end
 
     local current_zone = mq.TLO.Zone.ShortName() or "Unknown"
-    
+
     if tracked_spawns[current_zone] and #tracked_spawns[current_zone] > 0 then
         for _, spawn in ipairs(tracked_spawns[current_zone]) do
             ImGui.PushStyleColor(ImGuiCol.Text, 0, 1, 0, 1)
